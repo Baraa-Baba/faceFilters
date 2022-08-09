@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-
-// import main script and neural network model from Jeeliz FaceFilter NPM package
 import { JEELIZFACEFILTER } from 'facefilter'
-import { JeelizThreeHelper } from './helpers/JeelizThreeHelper.js'
-import * as THREE from 'three' 
-import './dev/faceLowPoly.blend'
+
+import * as THREE from 'three'
+// import main script and neural network model from Jeeliz FaceFilter NPM packageimport * as THREE from 'three' 
+
+import {JeelizThreeHelper} from 
+'./helpers/JeelizThreeHelper.js'
 
 // import THREE.js helper, useful to compute pose
 // The helper is not minified, feel free to customize it (and submit pull requests bro):
@@ -34,12 +35,18 @@ const Filters = ({filter }) => {
     }
     // build the 3D. called once when Jeeliz Face Filter is OK:
     function init_basicThreeScence(spec) {
-        spec.threeCanvasId = 'threeCanvas'
+        spec.threeCanvasId='threeCanvas'
+        const threeStuffs = JeelizThreeHelper.init(spec, detect_callback);
 
+   // CREATE A CUBE
+  const cubeGeometry = new THREE.BoxGeometry(1,1,1);
+  const cubeMaterial = new THREE.MeshNormalMaterial();
+  const threeCube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  threeCube.frustumCulled = false;
+  threeStuffs.faceObject.add(threeCube);
 
-        //CREATE THE CAMERA
-        THREECAMERA = JeelizThreeHelper.create_camera();
-        JEELIZFACEFILTER.render_video()
+  //CREATE THE CAMERA
+  THREECAMERA = JeelizThreeHelper.create_camera();
     }
     useEffect(() => {
         /* JeelizResizer.size_canvas({
@@ -129,7 +136,7 @@ const Filters = ({filter }) => {
                 })
                 setIsInt(true)
                 console.log('INFO: JEELIZFACEFILTER IS READY');
-                init_covidMakThreeScene(spec)
+                init_basicThreeScence(spec)
                 console.log(spec, 'init_AnyomnMaskthreeScene')
                 setspecTmp(spec)
 
@@ -229,13 +236,6 @@ const Filters = ({filter }) => {
 
     function init_covidMakThreeScene(spec) {
 
-        const threeStuffs = JeelizThreeHelper.init(spec, detect_callback);
-
-        const light = new THREE.PointLight(0xffffff, 1);
-        light.position.z = +6;
-
-        threeStuffs.faceObject.add(light);
-        threeStuffs.faceObject.add(covidMask);
     }
 
     function init_HairThreeScene(spec) {
@@ -293,7 +293,7 @@ const Filters = ({filter }) => {
 
     }
     useEffect(() => {
-        if (isInt && document.getElementById('videoOfUser')) {
+        if (true) {
             if (filter === 'none') {
                 if (document.getElementById('videoOfUser')) {
                     document.getElementById('videoOfUser').style.transform = `rotateY(${0}deg)`
@@ -304,6 +304,7 @@ const Filters = ({filter }) => {
             }
             if (filter === 'inverted') {
                 init_basicThreeScence(specTmp)
+                alert('inverted')
                 document.getElementById('videoOfUser').style.transform = `rotateY(${180}deg)`
                 setfps(15)
 
@@ -337,9 +338,7 @@ const Filters = ({filter }) => {
                 document.getElementById('videoOfUser').style.transform = `rotateY(${0}deg)`
                 setfps(3)
             }
-            document.getElementById('videoOfUser').style.transform = `rotateY(${0}deg)`
-        } else {
-        }
+        } 
     }, [filter]) 
     return (
         <>

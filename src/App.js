@@ -1,9 +1,12 @@
 import "./styles.css";
 import Filters from './filters'
+import AliceCarousel from 'react-alice-carousel';
+import 'react-alice-carousel/lib/alice-carousel.css';
 import React, { useEffect, useState, useRef } from "react";
 export default function App() {
   const userVideo = useRef(); 
   const tmpUserVideo = useRef()
+  const [isOneVideo,setIsOneVideo]=useState(false)
   const [stream,setStream]=useState()
   const [filter,setFilter]=useState('none')
   useEffect(()=>{
@@ -65,7 +68,7 @@ export default function App() {
             ]);
             setStream(silenceStream);
             if (userVideo.current) {
-              userVideo.current.srcObject = filterStreamm;
+              userVideo.current.srcObject = silenceStream;
             } 
           },
           () => {
@@ -137,22 +140,102 @@ export default function App() {
     );
 
   }
+  
+  const handleDragStart = (e) => e.preventDefault()
+  const filterOptions = [
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('none')
+    }}
+      className={`filter-image  ${filter == 'none' && 'opacity'}`} height={55} width={55} src='/assets/noSign.png' />
+    ,
+
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('inverted')
+    }}
+      className={`filter-image  ${filter == 'inverted' && 'opacity'}`} height={55} width={55} src='/assets/inveted-icon.png' />
+    ,
+
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('laCasaMask')
+    }}
+      className={`filter-image  ${filter == 'laCasaMask' && 'opacity'}`} height={55} width={55} src='/assets/laCasaMask.jpg' />
+    ,
+
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('AnoymnMask')
+    }}
+      className={`filter-image  ${filter == 'AnoymnMask' && 'opacity'}`} height={55} width={55} src='/assets/anomny.png' />
+    ,
+
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('LuffyHat')
+    }}
+      className={`filter-image  ${filter == 'LuffyHat' && 'opacity'}`} height={55} width={55} src='/assets/luffyHat.jpg' />
+    ,
+
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('covidMask')
+    }}
+      className={`filter-image  ${filter == 'covidMask' && 'opacity'}`} height={55} width={55} src='/assets/covidMask.png' />
+    ,
+
+    <img onDragStart={handleDragStart} role="presentation" onClick={(e) => {
+      e.preventDefault()
+      setFilter('hair')
+    }}
+      className={`filter-image  ${filter == 'hair' && 'opacity'}`} height={55} width={55} src='/assets/gingerHair.jpg' />
+
+  ]
   return (
-    <div className="App">
-      <h1>Hello CodeSandbox</h1>
-      <h2>Start editing to see some magic happen!</h2>
+    <div className="App"> 
       {UserVideo}
        <video
         id='tmpVideo'
         className="video userVideo"
-        playsInline
-        style={{ display: 'none' }}
+        playsInline 
         muted
         ref={tmpUserVideo}
         autoPlay
         delay
       />
-      <Filters />
+       <div style={{ position: 'absolute' }} className={`filter-coursel-cont`}>
+              <AliceCarousel renderPrevButton={() => <button style={{ left: "0" }} className='filter-pagination-button'>{'<'}</button>
+              } renderNextButton={() => <button style={{ right: "0" }} className='filter-pagination-button'>{'>'}</button>}
+                infinite={true} responsive={{
+                  0: { items: 1 },
+                  568: { items: 6 },
+                  1024: { items: 6 },
+                }}
+                disableDotsControls={true} mouseTracking renderKey={() => <button className='filter-pagination-button'>hello</button>}
+                items={filterOptions} />
+
+            </div>
+            <button className='isOneVideo'
+             onClick={()=>setIsOneVideo(!isOneVideo)} >
+              mode1
+              </button>
+      <Filters filter={filter} />
+      <style jsx>{`
+      #tmpVideo { 
+
+        position:absolute;
+        left:${isOneVideo&&'-400%'} 
+      } 
+      #threeCanvas { 
+        position:absolute;
+        left:${isOneVideo&&'-400%'}
+      }
+      #videoOfUser{
+        position:absolute;
+        left:${!isOneVideo&&'-400%'}
+      }
+      `}</style>
     </div>
   );
 }

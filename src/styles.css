@@ -1,4 +1,49 @@
-.App {
-  font-family: sans-serif;
-  text-align: center;
+.filter-coursel-cont {
+  max-width: 97vw;
+
+  min-width: 97vw;
+}
+.isOneVideo {
+  z-index: 100;
+  position: absolute;
+  bottom: 0;
+}
+#videothree {
+  height: 400px;
+  width: 500px;
+  display: none;
+}
+#threeCanvas {
+  left: 0;
+  position: absolute;
+  z-index: 100;
+  background: transparent;
+}
+#myCanvas {
+  display: none;
+}
+#partnerCanvas {
+  display: none;
+}
+#partnerThreeCanvas {
+  position: absolute;
+  z-index: 100;
+  background: transparent;
+  display: none;
+}
+#tmpVideoOfUser {
+  position: absolute;
+  left: 0;
+}
+#jeeFaceFilterCanvas {
+  display: none;
+  position: absolute;
+  right: 0;
+}
+@media (max-width: 787px) {
+  #jeeFaceFilterCanvas {
+    right: 0px;
+    top: 60px;
+    transform: rotateY(180deg);
+  }
 }

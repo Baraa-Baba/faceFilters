@@ -1,6 +1,7 @@
 .filter-coursel-cont {
   max-width: 97vw;
-
+  position:absolute;
+  bottom:0;
   min-width: 97vw;
 }
 .isOneVideo {

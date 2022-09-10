@@ -215,11 +215,7 @@ export default function App() {
                 disableDotsControls={true} mouseTracking renderKey={() => <button className='filter-pagination-button'>hello</button>}
                 items={filterOptions} />
 
-            </div>
-            <button className='isOneVideo'
-             onClick={()=>setIsOneVideo(!isOneVideo)} >
-              mode1
-              </button>
+            </div> 
       <Filters filter={filter} />
       <style jsx>{`
       #tmpVideo { 

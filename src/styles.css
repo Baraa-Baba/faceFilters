@@ -37,9 +37,12 @@
   left: 0;
 }
 #jeeFaceFilterCanvas {
-  display: none;
-  position: absolute;
-  right: 0;
+  left:0;
+  right:0;
+
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute; 
 }
 @media (max-width: 787px) {
   #jeeFaceFilterCanvas {
@@ -48,3 +51,7 @@
     transform: rotateY(180deg);
   }
 }
+
+#videoOfUser{
+  display: none !important;
+} 

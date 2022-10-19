@@ -273,7 +273,7 @@ function init_faceFilter(VIDEOELEMENT) {
             //qualityFactorRange:[0.9, 0.98]
         },
         scanSettings:{
-            nDetectsPerLoop :5.5,
+            nDetectsPerLoop :7,
         },
         NNC: NN_STANDARD_2, // root of NN_DEFAULT.json file
         isKeepRunningOnWinFocusLost: true,

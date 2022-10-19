@@ -65,7 +65,7 @@ function init_threeScene(spec) {
 // launched by body.onload():
 function main() { 
         const c = document.getElementById('jeeFaceFilterCanvas')
-        var video = document.getElementById("videoOfUser");
+        var video = document.getElementById("tmpVideo");
         c.height = video.videoHeight
         c.width = video.videoWidth
         init_faceFilter(null); 
@@ -304,7 +304,7 @@ function handleFilterChange() {
         clearMainChanger()
         setTimeout(() => {
             var filter = document.getElementById('filterValue').value
-            document.getElementById('videoOfUser').style.transform = `rotateY(${0}deg)`
+            document.getElementById('tmpVideo').style.transform = `rotateY(${0}deg)`
            
             
     const gltfLoader = new GLTFLoader();
@@ -313,7 +313,7 @@ function handleFilterChange() {
                 light.position.z = +10;
             }
             if (filter == 'inverted') {
-                document.getElementById('videoOfUser').style.transform = `rotateY(${180}deg)`
+                document.getElementById('JEELIZFACEFILTER ').style.transform = `rotateY(${180}deg)`
             }
             if (filter == 'laCasaMask') {
 

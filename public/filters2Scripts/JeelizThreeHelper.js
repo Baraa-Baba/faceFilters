@@ -17,20 +17,27 @@ const JeelizThreeHelper = (function () {
     };
 
     // private vars:
+    let yplus =0
+    let xplus=0
+    let PREVX=0
+    let thisDS=null
+    let prevLight=null
     let _threeRenderer = null,
         _threeScene = null,
         _threeVideoMesh = null,
         _threeVideoTexture = null,
         _threeTranslation = null;
-
+    let isBetweenFalseAndVisible=false
     let _maxFaces = -1,
         _isMultiFaces = false,
         _detectCallback = null,
+        prevDS=null,
         _isVideoTextureReady = false,
         _isSeparateThreeCanvas = false,
         _faceFilterCv = null,
         _videoElement = null,
         _isDetected = false,
+        isRunPreticted=false,
         _scaleW = 1,
         _canvasAspectRatio = -1;
 
@@ -42,7 +49,7 @@ const JeelizThreeHelper = (function () {
         _glShpCopyCutVideoMatUniformPointer = null;
 
     let _videoTransformMat2 = null;
-
+    let GthreeCamera=null
 
     // private funcs:
     function destroy() {
@@ -60,8 +67,12 @@ const JeelizThreeHelper = (function () {
             // COMPOSITE OBJECT WHICH WILL TRACK A DETECTED FACE
             const threeCompositeObject = new THREE.Object3D();
             threeCompositeObject.frustumCulled = false;
-            threeCompositeObject.visible = false;
-
+            threeCompositeObject.visible = false;   
+            // if(i==0){
+            //     let light = new THREE.PointLight(0xffffff, 1);
+            //     light.position.z = +10;
+            //     threeCompositeObject.add(light)
+            // }
             _threeCompositeObjects.push(threeCompositeObject);
             _threeScene.add(threeCompositeObject);
         }
@@ -146,26 +157,105 @@ const JeelizThreeHelper = (function () {
             _isDetected = threeCompositeObject.visible;
             const ds = detectState[i];
             if (_isDetected && ds.detected < _settings.detectionThreshold - _settings.detectionHysteresis) {
-
-                // DETECTION LOST
-                if (_detectCallback) _detectCallback(i, false);
-                threeCompositeObject.visible = false;
+               //  add translation part:  
+                setTimeout(()=>{ 
+                    if (_detectCallback) _detectCallback(i, false); 
+                    threeCompositeObject.visible = false; 
+                },2000)
             } else if (!_isDetected && ds.detected > _settings.detectionThreshold + _settings.detectionHysteresis) {
-
+                isBetweenFalseAndVisible=false
+                isRunPreticted=false  
                 // FACE DETECTED
                 if (_detectCallback) _detectCallback(i, true);
                 threeCompositeObject.visible = true;
             }
         }); //end loop on all detection slots
     }
+    function predictPosition(){
+        
+        if(isRunPreticted) return
+        const halfTanFOVX = Math.tan(GthreeCamera.aspect * GthreeCamera.fov * Math.PI / 360); //tan(<horizontal FoV>/2), in radians (threeCamera.fov is vertical FoV)
 
+        _threeCompositeObjects.forEach(function (threeCompositeObject, i) { 
+            if( threeCompositeObject.visible ==false ) return
+             isRunPreticted=true
+             var detectState = thisDS; 
+             if(thisDS.x-prevDS.x>0){
+             detectState.x+=0.3
+             }else if(thisDS.x-prevDS.x<0){
+                detectState.x-=0.3
+                }else if(thisDS.x-prevDS.x==0){ 
+                detectState.y-=0.2 
+                }else{
+                }
+             console.log('thisDs',thisDS.x)
+             console.log('prevDS',PREVX)    
 
-    function update_poses(ds, threeCamera) {
+             console.log(`%c${thisDS.x-PREVX==0}`, 'color: green; background: yellow; font-size: 30px');
+            // if(detectState.x>1||detectState.x<-1) return
+            //   detectState.y+= prevDS.y-thisDS.y
+            //   detectState.z+= prevDS.z-thisDS.z
+            //   tweak Y position depending on rx:
+            // detectState.rx=prevDS.rx
+            // detectState.ry=prevDS.ry
+            // detectState.rz=prevDS.rz
+            console.log('detect.x',detectState)
+             const tweak = _settings.tweakMoveYRotateX * Math.tan(detectState.rx);
+             const cz = Math.cos(detectState.rz), sz = Math.sin(detectState.rz);
+
+            //   relative width of the detection window (1-> whole width of the detection window):
+             const W = detectState.s * _scaleW;
+
+              //distance between the front face of the cube and the camera:
+             const DFront = 1 / (2 * W * halfTanFOVX);
+
+              //D is the distance between the center of the unit cube and the camera:
+             const D = DFront + 0.5;
+
+              //coords in 2D of the center of the detection window in the viewport:
+             const xv =  detectState.x * _scaleW;
+             const yv = detectState.y * _scaleW;
+              //coords in 3D of the center of the cube (in the view coordinates system):
+             const z = -D;   // minus because view coordinate system Z goes backward
+             const x = (xv * D * halfTanFOVX);
+             const y = (yv * D * halfTanFOVX / _canvasAspectRatio); 
+            //   set position before pivot:
+             threeCompositeObject.position.set(-sz * _settings.pivotOffsetYZ[0], -cz * 
+                 _settings.pivotOffsetYZ[0], -_settings.pivotOffsetYZ[1]); 
+            //   set rotation and apply it to position:
+              // threeCompositeObject.rotation.set(prevDS.rx + _settings.rotationOffsetX, 
+             //      prevDS.ry , prevDS.rz , "ZYX");
+              //threeCompositeObject.position.applyEuler(threeCompositeObject.rotation);
+ 
+            //    add translation part:
+              _threeTranslation.set(x, y + _settings.pivotOffsetYZ[0], z + _settings.pivotOffsetYZ[1]);
+                threeCompositeObject.position.add(_threeTranslation); 
+              console.log('transtion added')
+               })
+    }
+    function update_poses(ds, threeCamera,randomm) {
         // tan( <horizontal FoV> / 2 ):
         const halfTanFOVX = Math.tan(threeCamera.aspect * threeCamera.fov * Math.PI / 360); //tan(<horizontal FoV>/2), in radians (threeCamera.fov is vertical FoV)
 
-        _threeCompositeObjects.forEach(function (threeCompositeObject, i) {
-            if (!threeCompositeObject.visible) return;
+        _threeCompositeObjects.forEach(function (threeCompositeObject, i) { 
+            if (!threeCompositeObject.visible) return;    
+            thisDS=ds[i]
+            
+            setTimeout(()=>{ 
+                if(!isBetweenFalseAndVisible){ 
+                    prevDS= ds[i]
+                    PREVX=ds[i].x
+                console.log('changed')
+                setTimeout(()=>{
+                    if(!isBetweenFalseAndVisible){  
+                        prevDS.rx= ds[i].rx
+                        prevDS.ry= ds[i].ry
+                        prevDS.rz= ds[i].rz
+                        }
+                },1500)
+                }
+            },1500)
+         
             const detectState = ds[i];
 
             // tweak Y position depending on rx:
@@ -191,15 +281,18 @@ const JeelizThreeHelper = (function () {
             const y = yv * D * halfTanFOVX / _canvasAspectRatio;
 
             // set position before pivot:
-            threeCompositeObject.position.set(-sz * _settings.pivotOffsetYZ[0], -cz * _settings.pivotOffsetYZ[0], -_settings.pivotOffsetYZ[1]);
+            threeCompositeObject.position.set(-sz * _settings.pivotOffsetYZ[0], -cz * 
+                _settings.pivotOffsetYZ[0], -_settings.pivotOffsetYZ[1]);
 
             // set rotation and apply it to position:
-            threeCompositeObject.rotation.set(detectState.rx + _settings.rotationOffsetX, detectState.ry, detectState.rz, "ZYX");
+            threeCompositeObject.rotation.set(detectState.rx + _settings.rotationOffsetX, 
+                detectState.ry, detectState.rz, "ZYX");
             threeCompositeObject.position.applyEuler(threeCompositeObject.rotation);
 
-            // add translation part:
+            // add translation part: 
             _threeTranslation.set(x, y + _settings.pivotOffsetYZ[0], z + _settings.pivotOffsetYZ[1]);
-            threeCompositeObject.position.add(_threeTranslation);
+            
+            threeCompositeObject.position.add(_threeTranslation); 
         }); //end loop on composite objects
     }
 
@@ -244,7 +337,6 @@ const JeelizThreeHelper = (function () {
 
             _threeScene = new THREE.Scene();
             _threeTranslation = new THREE.Vector3();
-
             create_threeCompositeObjects();
             create_videoScreen();
 
@@ -265,7 +357,11 @@ const JeelizThreeHelper = (function () {
             }
             return returnedDict;
         }, //end that.init()
-
+        addLight: function(light){ 
+            _threeScene.remove(prevLight)
+            prevLight=light
+            _threeScene.add(light)
+        },
 
         detect: function (detectState) {
             const ds = (_isMultiFaces) ? detectState : [detectState];
@@ -285,6 +381,8 @@ const JeelizThreeHelper = (function () {
 
             // update detection states then poses:
             detect(ds);
+            let randomm=Math.random()
+             GthreeCamera=threeCamera
             update_poses(ds, threeCamera);
 
             if (_isSeparateThreeCanvas) {

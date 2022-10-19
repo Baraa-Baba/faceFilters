@@ -1,7 +1,11 @@
 import NN_STANDARD_2 from './neuralNets/NN_STANDARD_2.json' assert { type: "json" };
-import { GLTFLoader } from './GLTFLoader.js'
-
+import { GLTFLoader } from './GLTFLoader.js'   
 let THREECAMERA = null;
+var mainChanger1
+var mainChanger1Light
+var light1
+var mainChanger2
+var mainChanger3
 var myspec
 var threeStuffs
 var threeCube
@@ -30,10 +34,8 @@ let bunnyEars
 let magicHat
 // callback: launched if a face is detected or lost.
 function detect_callback(faceIndex, isDetected) {
-    if (isDetected) {
-        console.log('INFO in detect_callback(): DETECTED');
-    } else {
-        console.log('INFO in detect_callback(): LOST');
+    if (isDetected) {  
+    } else {  
     }
 }
 function getSilence() {
@@ -50,34 +52,23 @@ function init_threeScene(spec) {
     const cubeGeometry = new THREE.BoxGeometry(Math.random(), Math.random(), Math.random());
     const cubeMaterial = new THREE.MeshNormalMaterial();
     threeCube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    threeCube.frustumCulled = false;
-    mainChanger.add(threeCube)
-    threeStuffs.faceObject.add(mainChanger)
+    threeCube.frustumCulled = false;   
+    // threeStuffs.faceObjects[0].add(mainChanger.clone()) 
+    // threeStuffs.faceObjects[1].add(mainChanger.clone()) 
+    // threeStuffs.faceObjects[2].add(mainChanger.clone())
+    
     THREECAMERA = JeelizThreeHelper.create_camera();
     myspec = spec
+    
 } // end init_threeScene()
 
 // launched by body.onload():
-function main() {
-    var VIDEOELEMENT
-    if (document.getElementById('tmpVideo')) {
-        VIDEOELEMENT = document.getElementById('tmpVideo');
-    } else {
-        setTimeout(main, 1000);
-        return
-    }
-    if (VIDEOELEMENT['currentTime'] && VIDEOELEMENT['videoWidth']
-        && VIDEOELEMENT['videoHeight']) {
-
+function main() { 
         const c = document.getElementById('jeeFaceFilterCanvas')
-        var video = document.getElementById("tmpVideo");
+        var video = document.getElementById("videoOfUser");
         c.height = video.videoHeight
         c.width = video.videoWidth
-        init_faceFilter(VIDEOELEMENT);
-    } else {
-        setTimeout(main, 1000);
-        VIDEOELEMENT['play']();
-    }
+        init_faceFilter(null); 
 
     loadFilterModels()
 }
@@ -116,7 +107,7 @@ function loadFilterModels() {
             ANONYMOUSMESH = new THREE.Mesh(geometryHead, mat);
             ANONYMOUSMESH.frustumCulled = false;
             ANONYMOUSMESH.scale.multiplyScalar(0.065);
-            ANONYMOUSMESH.position.set(0, -0.75, 0.35)
+            ANONYMOUSMESH.position.set(0, -0.65, 0.35)
             // FOR THE APPEAR ANIMATION
             // we set the opacity of the materials to zero
             // the mesh will appear when the user growwlsss (or simply open his mouth)
@@ -161,13 +152,7 @@ function loadFilterModels() {
         gltf.scene.position.set(0, -1.6, 0)
         covidMask = gltf.scene
     }); 
-    gltfLoader.load('../models/drift_mask.glb', gltf => {
-
-        gltf.scene.scale.set(1.25, 1.25, 1.25);
-        gltf.scene.position.set(0, -0.7, -0.2)
-        gltf.scene.rotation.set(0, -64, 0)
-        driftMask = gltf.scene
-    });
+ 
     gltfLoader.load('../models/scary_mask.glb', gltf => {
 
         gltf.scene.scale.set(0.75, 0.75, 0.75);
@@ -175,6 +160,12 @@ function loadFilterModels() {
         gltf.scene.rotation.set(0, 0, 0)
         scaryMask = gltf.scene
     });
+    gltfLoader.load('../models/drift_mask.glb', gltf => { 
+        gltf.scene.scale.set(1.25, 1.25, 1.25);
+        gltf.scene.position.set(0, -0.7, -0.2)
+        gltf.scene.rotation.set(0, -64.5, 0)
+        driftMask = gltf.scene
+    })
     gltfLoader.load('../models/3d_love_emoji.glb', gltf => {
 
         gltf.scene.scale.set(0.035, 0.035, 0.035);
@@ -185,21 +176,21 @@ function loadFilterModels() {
     gltfLoader.load('../models/bandana_mask.glb', gltf => {
 
         gltf.scene.scale.set(1.2, 1.2, 1.2);
-        gltf.scene.position.set(0, -0.5, 0)
+        gltf.scene.position.set(0, -0.45, 0)
         gltf.scene.rotation.set(0, 0, 0)
         bandana_mask = gltf.scene
     });
     gltfLoader.load('../models/welding_mask.glb', gltf => {
 
-        gltf.scene.scale.set(7.5, 7.5, 7.5);
-        gltf.scene.position.set(0, 0.4, 0)
-        gltf.scene.rotation.set(0, 90, 0)
+        gltf.scene.scale.set(8.5, 8.5, 8.5);
+        gltf.scene.position.set(0, 1, 0)
+        gltf.scene.rotation.set(0, 89.5, 0)
         welding_mask = gltf.scene
     });
     gltfLoader.load('../models/masquerade_cat_mask_3.glb', gltf => {
 
         gltf.scene.scale.set(10, 10, 10);
-        gltf.scene.position.set(0, 0, 0)
+        gltf.scene.position.set(0, -0.2, 0)
         gltf.scene.rotation.set(0, 0, 0)
         masquerade_cat_mask_3 = gltf.scene
     });
@@ -234,7 +225,7 @@ function loadFilterModels() {
     gltfLoader.load('../models/egypt_cat_mask.glb', gltf => {
 
         gltf.scene.scale.set(0.011, 0.011, 0.011);
-        gltf.scene.position.set(0, 0.3, 0)
+        gltf.scene.position.set(0.08, 0.2, 0)
         gltf.scene.rotation.set(0, 0, 0)
         egypt_cat_mask = gltf.scene
     });
@@ -255,15 +246,15 @@ function loadFilterModels() {
     gltfLoader.load('../models/noenglassesPositionedTest.glb', gltf => {
 
         gltf.scene.scale.set(0.0035, 0.0035, 0.0035);
-        gltf.scene.position.set(0, 0.66, 0)
+        gltf.scene.position.set(0, 0.46, 0)
         gltf.scene.rotation.set(0, 0, 0)
         magicHat = gltf.scene
     });
     const loader = new GLTFLoader();
     loader.load('../ponyTialTest1001.glb', gltf => {
         console.log('loded')
-        gltf.scene.scale.set(1.2, 1.2, 1.2)
-        gltf.scene.position.set(0, -7.5, 0)
+        gltf.scene.scale.set(1.4, 1.4, 1.4)
+        gltf.scene.position.set(0, -9.3, 0)
         gltf.scene.rotation.set(0, 150, 0)
 
         ponyTail = gltf.scene
@@ -274,10 +265,19 @@ function init_faceFilter(VIDEOELEMENT) {
     handleFilterChange()
     JEELIZFACEFILTER.init({
         followZRot: true,
-        canvasId: 'jeeFaceFilterCanvas',
+        canvasId: 'jeeFaceFilterCanvas', 
+        stabilizationSettings:{
+            translationFactorRange:[0.0002, 0.0006],
+            // alphaRange:[0.99, 1.0],
+            // rotationFactorRange:[15, 30]
+            //qualityFactorRange:[0.9, 0.98]
+        },
+        scanSettings:{
+            nDetectsPerLoop :5.5,
+        },
         NNC: NN_STANDARD_2, // root of NN_DEFAULT.json file
         isKeepRunningOnWinFocusLost: true,
-        maxFacesDetected: 1,
+        maxFacesDetected: 3,
         videoSettings: {
             videoElement: VIDEOELEMENT,
         },
@@ -288,24 +288,29 @@ function init_faceFilter(VIDEOELEMENT) {
             }
 
             console.log('INFO: JEELIZFACEFILTER IS READY');
-            init_threeScene(spec);
+            init_threeScene(spec); 
         },
 
         // called at each render iteration (drawing loop):
-        callbackTrack: function (detectState) {
-
-
+        callbackTrack: function (detectState) { 
             JeelizThreeHelper.render(detectState, THREECAMERA);
+
+
         }
     }); //end JEELIZFACEFILTER.init call  
 }
 function handleFilterChange() {
-    document.getElementById('chooseFilter').addEventListener('click', () => {
+    document.getElementById('chooseFilter').addEventListener('click', () => { 
+        clearMainChanger()
         setTimeout(() => {
             var filter = document.getElementById('filterValue').value
             document.getElementById('videoOfUser').style.transform = `rotateY(${0}deg)`
-            clearMainChanger()
+           
+            
+    const gltfLoader = new GLTFLoader();
             if (filter == 'none') {
+                light = new THREE.PointLight(0xffffff, 1);
+                light.position.z = +10;
             }
             if (filter == 'inverted') {
                 document.getElementById('videoOfUser').style.transform = `rotateY(${180}deg)`
@@ -314,24 +319,25 @@ function handleFilterChange() {
 
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +6;
-                mainChanger.add(light)
+                
                 mainChanger.add(casaMask)
+           
             }
             if (filter == 'AnoymnMask') {
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +6;
-                mainChanger.add(light)
+                
                 mainChanger.add(ANONYMOUSMESH)
             }
             if (filter == 'LuffyHat') {
-                mainChanger.add(light)
+                
                 mainChanger.add(HATOBJ3D)
 
             }
             if (filter == 'covidMask') {
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +6;
-                mainChanger.add(light)
+                
                 mainChanger.add(covidMask)
 
             }
@@ -339,114 +345,154 @@ function handleFilterChange() {
                 light = new THREE.PointLight(0x313131, 50);
                 light.position.z = +4;
                 light.position.y = -5;
-                mainChanger.add(light)
+                
                 mainChanger.add(ponyTail)
             }if(filter=='driftMask'){
-                light = new THREE.PointLight(0xffffff, 1);
-                light.position.z = +10;
-                mainChanger.add(light)
-                mainChanger.add(driftMask)
+             
+                    light = new THREE.PointLight(0xffffff, 1);
+                    light.position.z = +10;
+                    
+                    mainChanger.add(driftMask) 
             }if(filter=='scaryMask'){
                 light = new THREE.PointLight(0xffffff, 2);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(scaryMask)
             }if(filter=='heartEmoji'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(heartEmoji)
             }if(filter=='bandana_mask'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(bandana_mask)
             }if(filter=='welding_mask'){
                 light = new THREE.PointLight(0xffffff, 20);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(welding_mask)
             }
             if(filter=='masquerade_cat_mask_3'){
                 light = new THREE.PointLight(0xffffff, 2);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(masquerade_cat_mask_3)
             }
             if(filter=='forest_mask'){
                 light = new THREE.PointLight(0xffffff, 5);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(forest_mask)
             }
               if(filter=='clown_2_mask'){
                 light = new THREE.PointLight(0xffffff, 2);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(clown_2_mask)
             }
             if(filter=='joker_mask'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(joker_mask)
             }
             if(filter=='batman_mask'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(batman_mask)
             }
             if(filter=='egypt_cat_mask'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(egypt_cat_mask)
             }
             if(filter=='samurai_mask'){
                 light = new THREE.PointLight(0xffffff, 2);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(samurai_mask)
             }
             if(filter=='bunnyEars'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(bunnyEars)
             }
             if(filter=='magicHat'){
                 light = new THREE.PointLight(0xffffff, 1);
                 light.position.z = +10;
-                mainChanger.add(light)
+                
                 mainChanger.add(magicHat)
-            }
-        }, 1000)
+            }  
+            JeelizThreeHelper.addLight(light)
+            //mainChanger.add(light)
+            threeStuffs.faceObjects[0].remove(mainChanger1) 
+            threeStuffs.faceObjects[1].remove(mainChanger2) 
+            threeStuffs.faceObjects[2].remove(mainChanger3)  
+            mainChanger1=mainChanger.clone() 
+            mainChanger2=mainChanger.clone()
+            mainChanger3=mainChanger.clone()  
+            threeStuffs.faceObjects[0].add(mainChanger1) 
+            threeStuffs.faceObjects[1].add(mainChanger2) 
+            threeStuffs.faceObjects[2].add(mainChanger3)
+            //threeStuffs.faceObject.add(mainChanger) 
+        }, 1)
     })
 }
 function clearMainChanger() {
-    mainChanger.remove(threeCube)
-    mainChanger.remove(forest_mask)
-    mainChanger.remove(ANONYMOUSOBJ3D)
-    mainChanger.remove(ANONYMOUSMESH)
-    mainChanger.remove(light)
-    mainChanger.remove(ponyTail)
-    mainChanger.remove(covidMask)
-    mainChanger.remove(casaMask)
-    mainChanger.remove(HATOBJ3D)
-    mainChanger.remove(driftMask)
-    mainChanger.remove(scaryMask)
-    mainChanger.remove(heartEmoji)
-    mainChanger.remove(bandana_mask)
-    mainChanger.remove(welding_mask)
-    mainChanger.remove(masquerade_cat_mask_3)
-    mainChanger.remove(clown_2_mask)
-    mainChanger.remove(joker_mask)
-    mainChanger.remove(batman_mask)
-    mainChanger.remove(egypt_cat_mask)
-    mainChanger.remove(samurai_mask)
-    mainChanger.remove(bunnyEars)
-    mainChanger.remove(magicHat)
+//     threeStuffs.faceObjects.forEach(function(faceObject){ // display the cube for each detected face
+        
+//    faceObject.remove(mainChanger.clone())
+//    faceObject.remove(threeCube.clone())
+//    faceObject.remove(forest_mask.clone())
+//         faceObject.remove(ANONYMOUSOBJ3D.clone())
+//         faceObject.remove(ANONYMOUSMESH.clone())
+//         faceObject.remove(light.clone())
+//         faceObject.remove(ponyTail.clone())
+//         faceObject.remove(covidMask.clone())
+//         faceObject.remove(casaMask.clone())
+//         faceObject.remove(HATOBJ3D.clone())
+//         faceObject.remove(driftMask.clone())
+//         faceObject.remove(scaryMask.clone())
+//         faceObject.remove(heartEmoji.clone())
+//         faceObject.remove(bandana_mask.clone())
+//         faceObject.remove(welding_mask.clone())
+//         faceObject.remove(masquerade_cat_mask_3.clone())
+//         faceObject.remove(clown_2_mask.clone())
+//         faceObject.remove(joker_mask.clone())
+//         faceObject.remove(batman_mask.clone())
+//         faceObject.remove(egypt_cat_mask.clone())
+//         faceObject.remove(samurai_mask.clone())
+//         faceObject.remove(bunnyEars.clone())
+//         faceObject.remove(magicHat.clone())
+//       });
+              
+   mainChanger.remove(threeCube)
+   mainChanger.remove(forest_mask)
+        mainChanger.remove(ANONYMOUSOBJ3D)
+        mainChanger.remove(ANONYMOUSMESH)
+        mainChanger.remove(light)
+        mainChanger.remove(ponyTail)
+        mainChanger.remove(covidMask)
+        mainChanger.remove(casaMask)
+        mainChanger.remove(HATOBJ3D)
+        mainChanger.remove(driftMask)
+        mainChanger.remove(scaryMask)
+        mainChanger.remove(heartEmoji)
+        mainChanger.remove(bandana_mask)
+        mainChanger.remove(welding_mask)
+        mainChanger.remove(masquerade_cat_mask_3)
+        mainChanger.remove(clown_2_mask)
+        mainChanger.remove(joker_mask)
+        mainChanger.remove(batman_mask)
+        mainChanger.remove(egypt_cat_mask)
+        mainChanger.remove(samurai_mask)
+        mainChanger.remove(bunnyEars)
+        mainChanger.remove(magicHat) 
 }
 var i
 function n() {

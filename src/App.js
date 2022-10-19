@@ -45,8 +45,7 @@ export default function App() {
         setStream(newStream);
         var canvas = document.getElementById("jeeFaceFilterCanvas");
         var mystream = canvas.captureStream();
-        let filterStreamm = new MediaStream([
-          ...stream.getAudioTracks(),
+        let filterStreamm = new MediaStream([  
           ...mystream.getVideoTracks(),
         ]); 
       },
@@ -123,8 +122,7 @@ export default function App() {
         if (document.getElementById("jeeFaceFilterCanvas"))  { 
           var canvas = document.getElementById("jeeFaceFilterCanvas");
           var mystream = canvas.captureStream();
-          let filterStreamm = new MediaStream([
-            ...stream.getAudioTracks(),
+          let filterStreamm = new MediaStream([ 
             ...mystream.getVideoTracks(),
           ]); 
           userVideo.current.srcObject = filterStreamm;
